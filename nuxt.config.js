@@ -14,7 +14,13 @@ module.exports = {
         content: process.env.npm_package_description || ''
       }
     ],
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
+    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    script: [
+      {
+        src: 'https://kit.fontawesome.com/274d00995a.js',
+        defer: true
+      }
+    ]
   },
   /*
    ** Customize the progress-bar color
@@ -27,7 +33,7 @@ module.exports = {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: [],
+  plugins: ['~/plugins/firebase.js'],
   /*
    ** Nuxt.js modules
    */
