@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 module.exports = {
   mode: 'universal',
   /*
@@ -42,9 +44,13 @@ module.exports = {
     '@nuxtjs/bulma',
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
-    '@nuxtjs/eslint-module',
-    [ '@nuxtjs/dotenv', { systemvars: true } ]
+    '@nuxtjs/eslint-module'
   ],
+  env: {
+    FIREBASE_API_KEY: process.env.FIREBASE_API_KEY,
+    FIREBASE_AUTH_EMAIL: process.env.FIREBASE_AUTH_EMAIL,
+    FIREBASE_AUTH_PASSWORD: process.env.FIREBASE_AUTH_PASSWORD
+  },
   /*
    ** Axios module configuration
    ** See https://axios.nuxtjs.org/options
