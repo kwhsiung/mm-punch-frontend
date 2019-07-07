@@ -34,4 +34,20 @@ export default (context, inject) => {
         throw error
       })
   })
+  inject('removeMember', ({ id, password }) => {
+    return db
+      .child(id)
+      .once('value')
+      .then((snapshot) => {
+        const { password: passwordInDB } = snapshot.val()
+        if (passwordInDB === password) {
+          return db.child(id).remove()
+        } else {
+          throw new Error('Invalid password')
+        }
+      })
+      .catch((error) => {
+        throw error
+      })
+  })
 }

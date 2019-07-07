@@ -8,28 +8,41 @@
     />
     <div class="buttons">
       <ButtonGreen
-        :class="{ 'is-loading': isFirebaseReqPending }"
-        @click.native="submit"
+        :class="{ 'is-loading': isFirebaseReqPendingSignUp }"
+        @click.native="submitSignUp"
       >
         確認加入
       </ButtonGreen>
-      <ButtonYellow
-        v-show="false"
-        @click.native="$emit('toggleChangePassword')"
+      <ButtonRed
+        :class="{ 'is-loading': isFirebaseReqPendingQuit }"
+        @click.native="submitQuit"
       >
-        修改密碼
-      </ButtonYellow>
+        幫我退出
+      </ButtonRed>
     </div>
     <div v-show="showResult" class="hints">
-      <p v-show="isFirebaseReqSuccess" class="hints__hint--success">
-        加入成功
-      </p>
-      <p v-show="isFirebaseReqFail" class="hints__hint--fail">
-        加入失敗
-      </p>
-      <p v-show="isMemberExist" class="hints__hint--fail">
-        會員已存在
-      </p>
+      <div class="hints__sign-up-hints-wrapper">
+        <p v-show="isFirebaseReqSuccessSignUp" class="hints__hint--success">
+          加入成功
+        </p>
+        <p v-show="isFirebaseReqFailSignUp" class="hints__hint--fail">
+          加入失敗
+        </p>
+        <p v-show="isMemberExistSignUp" class="hints__hint--fail">
+          會員已存在
+        </p>
+      </div>
+      <div class="hints__quit-hints-wrapper">
+        <p v-show="isFirebaseReqSuccessQuit" class="hints__hint--success">
+          退出成功
+        </p>
+        <p v-show="isFirebaseReqFailQuit" class="hints__hint--fail">
+          退出失敗
+        </p>
+        <p v-show="isMemberNotExistQuit" class="hints__hint--fail">
+          會員不存在
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -37,13 +50,13 @@
 <script>
 import FormSignUp from '@/components/FormSignUp.vue'
 import ButtonGreen from '@/components/ButtonGreen.vue'
-import ButtonYellow from '@/components/ButtonYellow.vue'
+import ButtonRed from '@/components/ButtonRed.vue'
 
 export default {
   components: {
     FormSignUp,
     ButtonGreen,
-    ButtonYellow
+    ButtonRed
   },
   data() {
     return {
@@ -51,10 +64,18 @@ export default {
       formPassword: '',
       isFormIdInvalid: false,
       isFormPasswordInvalid: false,
-      isFirebaseReqPending: false,
-      isFirebaseReqSuccess: false,
-      isFirebaseReqFail: false,
-      isMemberExist: false
+
+      // For sign up
+      isFirebaseReqPendingSignUp: false,
+      isFirebaseReqSuccessSignUp: false,
+      isFirebaseReqFailSignUp: false,
+      isMemberExistSignUp: false,
+
+      // For quit
+      isFirebaseReqPendingQuit: false,
+      isFirebaseReqSuccessQuit: false,
+      isFirebaseReqFailQuit: false,
+      isMemberNotExistQuit: false
     }
   },
   computed: {
@@ -64,10 +85,15 @@ export default {
   },
   methods: {
     resetFirebaseStatus() {
-      this.isFirebaseReqPending = false
-      this.isFirebaseReqSuccess = false
-      this.isFirebaseReqFail = false
-      this.isMemberExist = false
+      this.isFirebaseReqPendingSignUp = false
+      this.isFirebaseReqSuccessSignUp = false
+      this.isFirebaseReqFailSignUp = false
+      this.isMemberExistSignUp = false
+
+      this.isFirebaseReqPendingQuit = false
+      this.isFirebaseReqSuccessQuit = false
+      this.isFirebaseReqFailQuit = false
+      this.isMemberNotExistQuit = false
     },
     validateFormId() {
       this.isFormIdInvalid = this.formId === ''
@@ -76,7 +102,7 @@ export default {
       this.isFormPasswordInvalid = this.formPassword === ''
     },
     signUp() {
-      this.isFirebaseReqPending = true
+      this.isFirebaseReqPendingSignUp = true
       this.$checkMemberExist(this.formId)
         .then((res) => {
           if (res === 'not exist') {
@@ -85,30 +111,65 @@ export default {
               password: this.formPassword
             })
               .then(() => {
-                this.isFirebaseReqPending = false
-                this.isFirebaseReqSuccess = true
+                this.isFirebaseReqPendingSignUp = false
+                this.isFirebaseReqSuccessSignUp = true
               })
               .catch(() => {
-                this.isFirebaseReqPending = false
-                this.isFirebaseReqFail = true
+                this.isFirebaseReqPendingSignUp = false
+                this.isFirebaseReqFailSignUp = true
               })
           } else {
-            this.isFirebaseReqPending = false
-            this.isMemberExist = true
+            this.isFirebaseReqPendingSignUp = false
+            this.isMemberExistSignUp = true
           }
         })
         .catch(() => {
-          this.isFirebaseReqPending = false
-          this.isFirebaseReqFail = true
+          this.isFirebaseReqPendingSignUp = false
+          this.isFirebaseReqFailSignUp = true
         })
     },
-    submit() {
+    quit() {
+      this.isFirebaseReqPendingQuit = true
+      this.$checkMemberExist(this.formId)
+        .then((res) => {
+          if (res === 'not exist') {
+            this.isFirebaseReqPendingQuit = false
+            this.isMemberNotExistQuit = true
+          } else {
+            this.$removeMember({
+              id: this.formId,
+              password: this.formPassword
+            })
+              .then(() => {
+                this.isFirebaseReqPendingQuit = false
+                this.isFirebaseReqSuccessQuit = true
+              })
+              .catch(() => {
+                this.isFirebaseReqPendingQuit = false
+                this.isFirebaseReqFailQuit = true
+              })
+          }
+        })
+        .catch(() => {
+          this.isFirebaseReqPendingQuit = false
+          this.isFirebaseReqFailQuit = true
+        })
+    },
+    submitSignUp() {
       this.resetFirebaseStatus()
       this.validateFormId()
       this.validateFormPassword()
 
       if (this.formId !== '' && this.formPassword !== '') {
         this.signUp()
+      }
+    },
+    submitQuit() {
+      this.resetFirebaseStatus()
+      this.validateFormId()
+      this.validateFormPassword()
+      if (this.formId !== '' && this.formPassword !== '') {
+        this.quit()
       }
     }
   }
@@ -122,6 +183,10 @@ export default {
   margin 50px 0 0 0
 
 .hints
+  display flex
+  justify-content space-between
+  &__quit-hints-wrapper
+    text-align right
   &__hint
     &--success
       color #00d1b2
