@@ -43,7 +43,7 @@ module.exports = {
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
     '@nuxtjs/eslint-module',
-    '@nuxtjs/dotenv'
+    [ '@nuxtjs/dotenv', { systemvars: true } ]
   ],
   /*
    ** Axios module configuration
